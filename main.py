@@ -29,6 +29,12 @@ from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
+from tempmail import EMail
+
+import random
+import string
+import names
 
 proxy = Proxy()
 cur_proxy = proxy.proxy
@@ -37,7 +43,9 @@ options = Options()
 options.add_argument("--headless-new")
 options.add_argument(f"--proxy-server={cur_proxy}")
 
-def proxy_connect():
+driver = webdriver.Firefox
+
+def proxy_get():
     proxy.cycle()
 
     while proxy.test_proxy(cur_proxy) != 0:
@@ -55,14 +63,32 @@ def proxy_validate():
     proxy = Proxy(validate_proxies=True)
 
 def webdriver_start():
-    driver = webdriver.Firefox
-
     driver.get("https://www.instagram.com/accounts/emailsignup/")
+
+def reject_cookies():
+    cookies_btn = driver.find_element(By.CLASS_NAME("_a9-- _ap36 _a9_1"))
+    cookies_btn.click()
+
+def generate_email():
+    email = EMail();
+    return email
+
+def generate_pass():
+    length = random.randint(8, 16)
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for i in range(length))
+    return password
 
 def main():
     print("debug")
-    proxy_connect()
+    proxy_get()
     proxy_validate()
+    webdriver_start()
+    reject_cookies()
+    email = generate_email()
+    password = generate_pass()
+    real_name = names()
+
     return 0
 
 main()
