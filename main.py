@@ -1,6 +1,6 @@
 """
 Pseudo-code:
-    0. Connect to random proxy
+    0. Connect to random proxy X
     1. Open Web Browser
     2. Go to "https://www.instagram.com/accounts/emailsignup/"
     3. Reject cookies
@@ -25,9 +25,17 @@ Pseudo-code:
 """
 
 from proxy import Proxy
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.by import By
 
 proxy = Proxy()
 cur_proxy = proxy.proxy
+options = Options()
+
+options.add_argument("--headless-new")
+options.add_argument(f"--proxy-server={cur_proxy}")
 
 def proxy_connect():
     proxy.cycle()
@@ -43,9 +51,18 @@ def proxy_connect():
     print("")
     return 0
 
+def proxy_validate():
+    proxy = Proxy(validate_proxies=True)
+
+def webdriver_start():
+    driver = webdriver.Firefox
+
+    driver.get("https://www.instagram.com/accounts/emailsignup/")
+
 def main():
     print("debug")
     proxy_connect()
+    proxy_validate()
     return 0
 
 main()
