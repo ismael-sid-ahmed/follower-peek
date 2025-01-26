@@ -30,20 +30,19 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-from tempmail import EMail
 
 import random
 import string
 import names
+import requests
 
 proxy = Proxy()
 cur_proxy = proxy.proxy
 options = Options()
 
-options.add_argument("--headless-new")
-options.add_argument(f"--proxy-server={cur_proxy}")
+driver = webdriver.Firefox()
 
-driver = webdriver.Firefox
+options.add_argument(f"--proxy-server={cur_proxy}")
 
 def proxy_get():
     proxy.cycle()
@@ -63,14 +62,18 @@ def proxy_validate():
     proxy = Proxy(validate_proxies=True)
 
 def webdriver_start():
-    driver.get("https://www.instagram.com/accounts/emailsignup/")
+    driver.get("https://www.instagram.com")
 
 def reject_cookies():
-    cookies_btn = driver.find_element(By.CLASS_NAME("_a9-- _ap36 _a9_1"))
+    cookies_btn = driver.find_element(By.CSS_SELECTOR, "button._a9--:nth-child(3)")
     cookies_btn.click()
 
+def click_register_btn():
+    register_btn = driver.find_element(By.CSS_SELECTOR, "._ab25 > a:nth-child(1)")
+    register_btn.click()
+
 def generate_email():
-    email = EMail();
+    email = requests.get(url = "https://1secmail.pro/api/email/")
     return email
 
 def generate_pass():
@@ -79,16 +82,36 @@ def generate_pass():
     password = ''.join(random.choice(characters) for i in range(length))
     return password
 
+#Generates a string of random Charachters for the username
+def generate_username():
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(random.randintb(8, 16)))
+
+def input_info(email, password, real_name, user_name):
+    register_btn = driver.findElement(By.className("x9f619 xjbqb8w x78zum5 x168nmei x13lgxp2 x5pf9jr xo71vjh x1xmf6yo x1e56ztr x540dpk x1m39q7l x1n2onr6 x1plvlek xryxfnj x1c4vz4f x2lah0s xdt5ytf xqjyukv x1qjc9v5 x1oa3qoh x1nhvcw1"))
+
+    email_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
+    pass_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
+    full_name_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
+    username_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
+
+    email_field.sendKeys(email)
+    pass_field.sendKeys(password)
+    full_name_field.sendKeys(real_name)
+    username_field.sendKeys(user_name)
+
+    return 0
+
+
 def main():
-    print("debug")
     proxy_get()
-    proxy_validate()
+    #proxy_validate()
     webdriver_start()
     reject_cookies()
+    click_register_btn()
     email = generate_email()
     password = generate_pass()
     real_name = names()
-
+    user_name = generate_username()
     return 0
 
 main()
