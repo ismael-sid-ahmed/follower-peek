@@ -30,11 +30,20 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from webdriver_manager.firefox import GeckoDriverManager
+from random import seed
+from random import randint
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 import random
 import string
 import names
 import requests
+import time
+
+import simplejson as json
 
 proxy = Proxy()
 cur_proxy = proxy.proxy
@@ -42,7 +51,7 @@ options = Options()
 
 driver = webdriver.Firefox()
 
-options.add_argument(f"--proxy-server={cur_proxy}")
+options.add_argument(f"--proxy-server={cur_proxy} executable_path=GeckoDriverManager().install()")
 
 def proxy_get():
     proxy.cycle()
@@ -69,11 +78,14 @@ def reject_cookies():
     cookies_btn.click()
 
 def click_register_btn():
+    time.sleep(getRandomTime())
     register_btn = driver.find_element(By.CSS_SELECTOR, "._ab25 > a:nth-child(1)")
     register_btn.click()
 
 def generate_email():
-    email = requests.get(url = "https://1secmail.pro/api/email/")
+    json_email = requests.get(url = "https://www.guerrillamail.com/ajax.php?f=get_email_address&ip=127.0.0.1&agent=Mozilla_foo_bar")
+    data = json.loads(json_email.text)
+    email = data["email_addr"]
     return email
 
 def generate_pass():
@@ -84,23 +96,51 @@ def generate_pass():
 
 #Generates a string of random Charachters for the username
 def generate_username():
-    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(random.randintb(8, 16)))
+    return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(random.randint(8, 16)))
 
 def input_info(email, password, real_name, user_name):
-    register_btn = driver.findElement(By.className("x9f619 xjbqb8w x78zum5 x168nmei x13lgxp2 x5pf9jr xo71vjh x1xmf6yo x1e56ztr x540dpk x1m39q7l x1n2onr6 x1plvlek xryxfnj x1c4vz4f x2lah0s xdt5ytf xqjyukv x1qjc9v5 x1oa3qoh x1nhvcw1"))
+    try:
+        email_field = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/div/div/div[1]/div[2]/div/form/div[4]/div/label/input")
 
-    email_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
-    pass_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
-    full_name_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
-    username_field = driver.findElement(By.className("_aa4b _add6 _ac4d _ap35"))
+    except:
+        print("Email Field not found")
+        return -1;
 
-    email_field.sendKeys(email)
-    pass_field.sendKeys(password)
-    full_name_field.sendKeys(real_name)
-    username_field.sendKeys(user_name)
+    try:
+        pass_field = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/div/div/div[1]/div[2]/div/form/div[5]/div/label/input")
+    except:
+        print("Password field not found")
+        return -1;
+    
+    try:
+        full_name_field = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/div/div/div[1]/div[2]/div/form/div[6]/div/label/input")
+    except:
+        print("Full Name Field not found")
+        return -1;
+
+    try:
+        username_field = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/div/div/div[1]/div[2]/div/form/div[7]/div/label/input")
+    except:
+        print("Username Field not found")
+        return -1;
+
+    try:
+        register_btn = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/div/div/div[1]/div[2]/div/form/div[8]/div/button")
+    except:
+        print("Registration Button not found")
+        return -1;
+
+    email_field.send_keys(email)
+    pass_field.send_keys(password)
+    full_name_field.send_keys(real_name)
+    username_field.send_keys(user_name)
+
+    register_btn.click()
 
     return 0
 
+def getRandomTime():
+    return randint(3, 5)
 
 def main():
     proxy_get()
@@ -110,8 +150,9 @@ def main():
     click_register_btn()
     email = generate_email()
     password = generate_pass()
-    real_name = names()
+    real_name = names
     user_name = generate_username()
+    input_info(email, password, real_name, user_name)
     return 0
 
 main()
