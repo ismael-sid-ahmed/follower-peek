@@ -98,6 +98,12 @@ def generate_pass():
 def generate_username():
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(random.randint(8, 16)))
 
+def generate_legal_name():
+    json_name = requests.get(url = "https://randomuser.me/api/")
+    data = json.loads(json_name.text)
+    name = f"{data['results'][0]['name']['first']} {data['results'][0]['name']['last']}"
+    return name;
+
 def input_info(email, password, real_name, user_name):
     try:
         email_field = driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div[1]/div[1]/div/section/main/div/div/div[1]/div[2]/div/form/div[4]/div/label/input")
@@ -150,7 +156,7 @@ def main():
     click_register_btn()
     email = generate_email()
     password = generate_pass()
-    real_name = names
+    real_name = generate_legal_name()
     user_name = generate_username()
     input_info(email, password, real_name, user_name)
     return 0
